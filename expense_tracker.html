@@ -14,60 +14,27 @@
 </head>
 
 <body>
-    <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">TODO list</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        items
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">contact</a>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        </div>
-    </nav> -->
     <div class="container my-4">
         <h2 class="text-center">Expense Tracker</h2>
-        <div class="form-group">
+        <div class="form-group" id="addForm">
             <label for="amount">Expense amount: </label>
             <input type="number" class="form-control" id="amount" placeholder="expense amount">
             <label for="description">Description: </label>
             <input type="text" class="form-control" id="description" placeholder="expense description">
-            <label for="catagory">Expenxe Catagory: </label>
-            <input type="text" class="form-control" id="catagory" placeholder="expense catagory">
-            <!-- <select name="catagory" id="catagory">
+            <label for="catagory">Expence Catagory: </label>
+            <!-- <input type="text" class="form-control" id="catagory" placeholder="expense catagory"> -->
+            <select name="catagory" id="catagory" class="form-control">
                 <option value="fuel">fuel</option>
                 <option value="movies">movies</option>
                 <option value="utilities">utilities</option>
                 <option value="travel">travel</option>
-            </select> -->
+            </select>
         </div>
         <button type="submit" id="add" class="btn btn-primary">Add to list</button>
+        <div>
+        <button style="display: none" type="button" id="update" class="btn btn-primary">update list</button>
+        <button style="display: none" type="button" id="clear" class="btn btn-danger">cancel</button>
+    </div>
         <!-- <div id="items my-4">
             <h2>Your items</h2>
             <table class="table">
@@ -127,8 +94,7 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
     <script>
-        function getAnUpdate() {
-            console.log("updating list...")
+        function addItem() {
             amt = document.getElementById("amount").value;
             desc = document.getElementById("description").value;
             ctg = document.getElementById("catagory").value;
@@ -143,10 +109,25 @@
                 itemJsonArray.push([amt, desc, ctg]);
                 localStorage.setItem('itemsJson', JSON.stringify(itemJsonArray));
             }
-            update();
+
+            let tableBody = document.getElementById("tablebody")
+            let str = ""
+            itemJsonArray.forEach((element, index) => {
+                str += `
+                <tr>
+            <th scope="row">${index + 1}</th>
+            <td>${element[0]}</td>
+            <td>${element[1]}</td>
+            <td>${element[2]}</td>
+            <td><button class="btn btn-sm btn-primary" onclick ="deleted(${index})">Delete</button></td>
+            <td><button class="btn btn-sm btn-primary" onclick ="edit(${index})">Edit</button></td>
+          </tr>`
+            });
+            tableBody.innerHTML = str;
+            clearForm();
         }
-            function update(){
-                if (localStorage.getItem('itemsJson') == null) {
+        function update() {
+            if (localStorage.getItem('itemsJson') == null) {
                 itemJsonArray = [];
                 localStorage.setItem('itemsJson', JSON.stringify(itemJsonArray));
             }
@@ -159,21 +140,20 @@
             itemJsonArray.forEach((element, index) => {
                 str += `
                 <tr>
-            <th scope="row">${index+1}</th>
+            <th scope="row">${index + 1}</th>
             <td>${element[0]}</td>
             <td>${element[1]}</td>
             <td>${element[2]}</td>
             <td><button class="btn btn-sm btn-primary" onclick ="deleted(${index})">Delete</button></td>
-            <td><button class="btn btn-sm btn-primary" onclick ="dit(${index})">Edit</button></td>
+            <td><button class="btn btn-sm btn-primary" onclick ="edit(${index})">Edit</button></td>
           </tr>`
             });
             tableBody.innerHTML = str;
         }
         add = document.getElementById("add");
-        add.addEventListener("click", getAnUpdate);
+        add.addEventListener("click", addItem);
         update();
         function deleted(itemIndex) {
-            console.log("Delete", itemIndex)
             itemJsonArrayStr = localStorage.getItem('itemsJson')
             itemJsonArray = JSON.parse(itemJsonArrayStr);
             itemJsonArray.splice(itemIndex, 1);
@@ -181,13 +161,47 @@
             update();
         }
         function edit(itemIndex) {
-            console.log("Edit", itemIndex)
-            itemJsonArrayStr = localStorage.getItem('itemsJson')
+            itemJsonArrayStr = localStorage.getItem('itemsJson');
             itemJsonArray = JSON.parse(itemJsonArrayStr);
-            // itemJsonArray.splice(itemIndex, 1);
+            rowValue = itemJsonArray.at(itemIndex);
+            document.getElementById("amount").value = rowValue[0]
+            document.getElementById("description").value = rowValue[1];
+            document.getElementById("catagory").value = rowValue[2];
+            amt = document.getElementById("amount").value;
+            desc = document.getElementById("description").value;
+            ctg = document.getElementById("catagory").value;
+            document.getElementById("update").setAttribute('onClick', 'updateValue(' + itemIndex + ')')
+            document.getElementById("update").style.display = "inline-block";
+            document.getElementById("clear").style.display = "inline-block";
+            document.getElementById("clear").setAttribute('onClick','clearField()');
+            document.getElementById("add").style.display = "none";
+        }
+        function updateValue(itemIndex) {
+            itemJsonArrayStr = localStorage.getItem('itemsJson');
+            itemJsonArray = JSON.parse(itemJsonArrayStr);
+            amt = document.getElementById("amount").value;
+            desc = document.getElementById("description").value;
+            ctg = document.getElementById("catagory").value;
+            itemJsonArray[itemIndex] = [amt, desc, ctg];
             localStorage.setItem('itemsJson', JSON.stringify(itemJsonArray));
             update();
+            document.getElementById("update").style.display = "none";
+            document.getElementById("add").style.display = "block";
+            clearForm();
         }
+        function clearForm(){
+            document.getElementById("amount").value = '';
+            document.getElementById("description").value = '';
+            document.getElementById("catagory").value = '';
+        }
+        function clearField(){
+            clearForm();
+            document.getElementById("clear").style.display = "none";
+            document.getElementById("update").style.display = "none";
+            document.getElementById("add").style.display = "block";   
+        }
+
+
     </script>
 </body>
 
