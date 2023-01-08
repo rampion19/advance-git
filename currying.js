@@ -15,5 +15,5 @@ let multiply = function(x){
         console.log(x*y);
     }
 }
-let multiplybyTwo = multiply(3);
-multiplybyTwo(5);
+// let multiplybyTwo = multiply(3);
+multiply((3)(5));

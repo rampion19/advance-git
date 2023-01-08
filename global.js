@@ -1,3 +1,11 @@
-console.log(b);
-let a =10;
-var b = 100;
+var count = 0;
+const name = (arr)=>{
+return ()=>{
+console.log("hello"+" "+arr[count]);
+count++;
+}
+
+}
+let fun = name(["Ram","Shyam"]);
+fun()
+fun()
